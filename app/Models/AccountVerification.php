@@ -169,17 +169,45 @@ class AccountVerification extends Model
     }
 
     // -------------------------------------------------------------------------
-    // Public Verification URL Accessors (uses ?t= param to match live Pubali format)
+    // Public Verification URL Accessors (uses http://domain:PORT/?t=*** format)
     // -------------------------------------------------------------------------
 
     public function getCertificateVerificationUrlAttribute(): string
     {
-        return url('/?t=' . $this->certificate_token);
+        $domain = $this->getVerificationDomain();
+        $port = $this->getVerificationPort();
+        return "http://{$domain}:{$port}/?t={$this->certificate_token}";
     }
 
     public function getStatementVerificationUrlAttribute(): string
     {
-        return url('/?t=' . $this->statement_token);
+        $domain = $this->getVerificationDomain();
+        $port = $this->getVerificationPort();
+        return "http://{$domain}:{$port}/?t={$this->statement_token}";
+    }
+
+    public function getVerificationDomain(): string
+    {
+        if (env('VERIFY_DOMAIN')) {
+            return env('VERIFY_DOMAIN');
+        }
+
+        $host = '';
+        if (app()->bound('request') && request() && request()->getHost()) {
+            $host = request()->getHost();
+        } elseif (config('app.url')) {
+            $host = parse_url(config('app.url'), PHP_URL_HOST) ?? '';
+        }
+
+        $host = preg_replace('/:\d+$/', '', $host);
+
+        return !empty($host) ? $host : 'verify.pubalibankbd.com';
+    }
+
+    public function getVerificationPort(?string $key = null): int
+    {
+        $uniqueAccountKey = (string) ($key ?? ($this->account_no ?: ($this->id ?: 'pubali_account')));
+        return 1000 + (hexdec(substr(md5($uniqueAccountKey), 0, 4)) % 9000);
     }
 
     // -------------------------------------------------------------------------
