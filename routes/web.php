@@ -24,6 +24,14 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
     abort(404);
 })->name('home');
 
+// Support 4-digit random path verification format: http://domain/{code}/?t=******
+Route::get('/{code}', function (\Illuminate\Http\Request $request) {
+    if ($request->filled('t') || $request->filled('ref')) {
+        return app(PublicVerificationController::class)->displayVerificationInfo($request);
+    }
+    abort(404);
+})->where('code', '[0-9]{4}')->name('verify.code');
+
 // Public Online QR Verification Endpoints (Full paths & Legacy aliases)
 Route::get('/ini/certificates-statements/verification-info-display', [PublicVerificationController::class, 'displayVerificationInfo'])->name('verify.display');
 

@@ -187,7 +187,7 @@ class AccountVerification extends Model
      */
     public function getDirectCertificateUrlAttribute(): string
     {
-        return url('/?t=' . $this->certificate_token);
+        return $this->buildVerificationUrl($this->certificate_token);
     }
 
     /**
@@ -195,13 +195,12 @@ class AccountVerification extends Model
      */
     public function getDirectStatementUrlAttribute(): string
     {
-        return url('/?t=' . $this->statement_token);
+        return $this->buildVerificationUrl($this->statement_token);
     }
 
     /**
-     * Build verification URL:
-     * - If VERIFY_DOMAIN is set in .env (e.g. http://verify.pubalibankbd.net), uses that domain.
-     * - Otherwise uses active server URL (e.g. http://127.0.0.1:8000 or live domain).
+     * Build verification URL with 4-digit code path:
+     * Format: http://domain/XXXX/?t=******
      */
     public function buildVerificationUrl(?string $token): string
     {
@@ -209,15 +208,17 @@ class AccountVerification extends Model
             return '';
         }
 
+        $code = $this->getVerificationPort();
+
         // 1. Explicit VERIFY_DOMAIN set in .env (e.g. http://verify.pubalibankbd.net)
         if ($configuredDomain = env('VERIFY_DOMAIN')) {
             $scheme = str_starts_with($configuredDomain, 'https://') ? 'https://' : 'http://';
             $cleanDomain = preg_replace('#^https?://#', '', $configuredDomain);
-            return rtrim("{$scheme}{$cleanDomain}", '/') . '/?t=' . $token;
+            return rtrim("{$scheme}{$cleanDomain}", '/') . "/{$code}/?t={$token}";
         }
 
-        // 2. Exact URL from active server running in terminal or live hosting
-        return rtrim(url('/'), '/') . '/?t=' . $token;
+        // 2. Active server URL from local/live hosting
+        return rtrim(url('/'), '/') . "/{$code}/?t={$token}";
     }
 
     public function getVerificationPort(?string $key = null): int
