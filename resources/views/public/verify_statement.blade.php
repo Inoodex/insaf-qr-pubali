@@ -177,9 +177,9 @@
             <div class="d-flex justify-content-between align-items-center gap-2">
                 <!-- Left Section: Logo + System Title -->
                 <div class="d-flex align-items-center gap-2 gap-md-3">
-                    <a href="https://www.pubalibangla.com" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center;">
+                    <span style="display: flex; align-items: center;">
                         <img src="{{ asset('assets/img/logo.png') }}" alt="Pubali Bank PLC" class="brand-logo-svg" />
-                    </a>
+                    </span>
 
                     <span class="top-bar-title fs-6 fs-md-5 text-white fw-normal border-start border-white border-opacity-75 ps-2 ps-md-3">
                         Document Verifier
@@ -188,9 +188,9 @@
 
                 <!-- Right Section: Action Button -->
                 <div>
-                    <span class="website-link btn btn-md">
+                    <a href="https://www.pubalibangla.com" target="_blank" rel="noopener noreferrer" class="website-link btn btn-md">
                         Visit Website
-                    </span>
+                    </a>
                 </div>
             </div>
         </div>
