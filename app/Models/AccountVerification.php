@@ -199,9 +199,9 @@ class AccountVerification extends Model
     }
 
     /**
-     * Build verification URL with intelligent port handling:
-     * - Local development (127.0.0.1 / localhost): uses real working port (8000) so links open directly.
-     * - Live domain or VERIFY_DOMAIN in .env: uses 4-digit random port per unique account.
+     * Build verification URL:
+     * - If VERIFY_DOMAIN is set in .env (e.g. http://verify.pubalibankbd.net), uses that domain.
+     * - Otherwise uses active server URL (e.g. http://127.0.0.1:8000 or live domain).
      */
     public function buildVerificationUrl(?string $token): string
     {
@@ -209,38 +209,15 @@ class AccountVerification extends Model
             return '';
         }
 
-        // 1. Explicit VERIFY_DOMAIN set in .env -> use domain + 4-digit port
+        // 1. Explicit VERIFY_DOMAIN set in .env (e.g. http://verify.pubalibankbd.net)
         if ($configuredDomain = env('VERIFY_DOMAIN')) {
-            $domain = preg_replace('/:\d+$/', '', $configuredDomain);
-            $port = $this->getVerificationPort();
-            return "http://{$domain}:{$port}/?t={$token}";
+            $scheme = str_starts_with($configuredDomain, 'https://') ? 'https://' : 'http://';
+            $cleanDomain = preg_replace('#^https?://#', '', $configuredDomain);
+            return rtrim("{$scheme}{$cleanDomain}", '/') . '/?t=' . $token;
         }
 
-        // 2. Check current request / app host and port
-        $host = '';
-        $port = null;
-        if (app()->bound('request') && request()) {
-            $host = request()->getHost();
-            $port = request()->getPort();
-        } elseif (config('app.url')) {
-            $parsed = parse_url(config('app.url'));
-            $host = $parsed['host'] ?? '';
-            $port = $parsed['port'] ?? null;
-        }
-
-        // 3. Local environments: preserve real port (e.g. 8000) so browser can open the page
-        $isLocal = empty($host) || in_array($host, ['localhost', '127.0.0.1', '::1']) || str_ends_with($host, '.test') || str_ends_with($host, '.local');
-
-        if ($isLocal) {
-            $portString = ($port && !in_array($port, [80, 443])) ? ":{$port}" : '';
-            $host = !empty($host) ? $host : '127.0.0.1';
-            return "http://{$host}{$portString}/?t={$token}";
-        }
-
-        // 4. Live / Production Domain: use domain + unique 4-digit random port
-        $domain = preg_replace('/:\d+$/', '', $host ?: 'verify.pubalibankbd.com');
-        $randomPort = $this->getVerificationPort();
-        return "http://{$domain}:{$randomPort}/?t={$token}";
+        // 2. Exact URL from active server running in terminal or live hosting
+        return rtrim(url('/'), '/') . '/?t=' . $token;
     }
 
     public function getVerificationPort(?string $key = null): int
