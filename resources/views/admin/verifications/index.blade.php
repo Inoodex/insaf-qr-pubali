@@ -551,8 +551,6 @@
                     data: payload,
                     margin: 8,
                     qrOptions: { 
-                        typeNumber: typeNum,
-                        mode: 'Byte',
                         errorCorrectionLevel: 'M' 
                     },
                     dotsOptions: { color: "#222a36", type: "square" },
@@ -647,8 +645,6 @@
                     data: qrUrl,
                     margin: 20,
                     qrOptions: { 
-                        typeNumber: typeNum,
-                        mode: 'Byte',
                         errorCorrectionLevel: 'M' 
                     },
                     dotsOptions: { color: "#222a36", type: "square" },
