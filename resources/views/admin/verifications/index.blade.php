@@ -238,9 +238,14 @@
                                 <div id="certPayloadBox" class="text-start p-3 bg-body-secondary rounded-3 border mb-3 {{ ($activeVerification || $editVerification) ? '' : 'd-none' }}">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="small fw-bold text-muted text-uppercase">Solvency Link:</span>
-                                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" onclick="copyPayload('cert')">
-                                            <i class="bi bi-clipboard me-1"></i>Copy
-                                        </button>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <a id="btnOpenCertDirect" href="{{ ($editVerification ?? $activeVerification) ? ($editVerification ?? $activeVerification)->direct_certificate_url : '#' }}" target="_blank" class="btn btn-link btn-sm p-0 text-decoration-none text-primary">
+                                                <i class="bi bi-box-arrow-up-right me-1"></i>Open
+                                            </a>
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" onclick="copyPayload('cert')">
+                                                <i class="bi bi-clipboard me-1"></i>Copy
+                                            </button>
+                                        </div>
                                     </div>
                                     <pre class="mb-0 small text-body font-monospace" id="certPayloadText" style="white-space: pre-wrap; font-size: 0.78rem; line-height: 1.35; word-break: break-all;"></pre>
                                 </div>
@@ -257,9 +262,14 @@
                                 <div id="stmtPayloadBox" class="text-start p-3 bg-body-secondary rounded-3 border mb-3 {{ ($activeVerification || $editVerification) ? '' : 'd-none' }}">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="small fw-bold text-muted text-uppercase">Statement Link:</span>
-                                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" onclick="copyPayload('stmt')">
-                                            <i class="bi bi-clipboard me-1"></i>Copy
-                                        </button>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <a id="btnOpenStmtDirect" href="{{ ($editVerification ?? $activeVerification) ? ($editVerification ?? $activeVerification)->direct_statement_url : '#' }}" target="_blank" class="btn btn-link btn-sm p-0 text-decoration-none text-success">
+                                                <i class="bi bi-box-arrow-up-right me-1"></i>Open
+                                            </a>
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" onclick="copyPayload('stmt')">
+                                                <i class="bi bi-clipboard me-1"></i>Copy
+                                            </button>
+                                        </div>
                                     </div>
                                     <pre class="mb-0 small text-body font-monospace" id="stmtPayloadText" style="white-space: pre-wrap; font-size: 0.78rem; line-height: 1.35; word-break: break-all;"></pre>
                                 </div>
@@ -329,7 +339,9 @@
                                     '{{ addslashes($v->currency ?? '') }}',
                                     '{{ addslashes($v->equivalent_balance ?? '') }}',
                                     '{{ $v->certificate_verification_url }}',
-                                    '{{ $v->statement_verification_url }}'
+                                    '{{ $v->statement_verification_url }}',
+                                    '{{ $v->direct_certificate_url }}',
+                                    '{{ $v->direct_statement_url }}'
                                 )">
                                 <td class="ps-4">
                                     <div class="fw-bold text-body">{{ $v->account_name }}</div>
@@ -388,13 +400,13 @@
 
                                                 <li><hr class="dropdown-divider my-1"></li>
                                                 <li>
-                                                    <a class="dropdown-item d-flex align-items-center py-2" href="{{ $v->certificate_verification_url }}" target="_blank">
+                                                    <a class="dropdown-item d-flex align-items-center py-2" href="{{ $v->direct_certificate_url }}" target="_blank">
                                                         <i class="bi bi-box-arrow-up-right text-primary me-2 fs-6"></i>
                                                         <span>Live Solvency View</span>
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a class="dropdown-item d-flex align-items-center py-2" href="{{ $v->statement_verification_url }}" target="_blank">
+                                                    <a class="dropdown-item d-flex align-items-center py-2" href="{{ $v->direct_statement_url }}" target="_blank">
                                                         <i class="bi bi-box-arrow-up-right text-success me-2 fs-6"></i>
                                                         <span>Live Statement View</span>
                                                     </a>
@@ -686,7 +698,7 @@
         }, 150);
     }
 
-    function loadRow(accNo, accName, accType, certId, certBal, openBal, closeBal, periodFrom, periodTo, stmtGenAt, openDate, reportDate, currency, eqBal, certUrl, stmtUrl) {
+    function loadRow(accNo, accName, accType, certId, certBal, openBal, closeBal, periodFrom, periodTo, stmtGenAt, openDate, reportDate, currency, eqBal, certUrl, stmtUrl, directCertUrl, directStmtUrl) {
         document.getElementById('inputAccountNo').value = accNo;
         document.getElementById('inputAccountName').value = accName;
         document.getElementById('inputAccountType').value = accType || '';
@@ -708,6 +720,12 @@
 
         currentCertUrl = certUrl;
         currentStmtUrl = stmtUrl;
+
+        const openCertBtn = document.getElementById('btnOpenCertDirect');
+        if (openCertBtn && directCertUrl) openCertBtn.href = directCertUrl;
+
+        const openStmtBtn = document.getElementById('btnOpenStmtDirect');
+        if (openStmtBtn && directStmtUrl) openStmtBtn.href = directStmtUrl;
 
         renderQR('cert', certUrl);
         renderQR('stmt', stmtUrl);

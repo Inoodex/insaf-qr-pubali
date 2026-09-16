@@ -108,13 +108,13 @@
                                                 <i class="bi bi-three-dots-vertical"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end shadow-lg border py-2" style="font-size: 0.85rem; min-width: 220px; z-index: 9999;">                                                <li>
-                                                    <a class="dropdown-item d-flex align-items-center py-2" href="{{ $v->certificate_verification_url }}" target="_blank">
+                                                    <a class="dropdown-item d-flex align-items-center py-2" href="{{ $v->direct_certificate_url }}" target="_blank">
                                                         <i class="bi bi-box-arrow-up-right text-info me-2 fs-6"></i>
                                                         <span>View Certificate</span>
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a class="dropdown-item d-flex align-items-center py-2" href="{{ $v->statement_verification_url }}" target="_blank">
+                                                    <a class="dropdown-item d-flex align-items-center py-2" href="{{ $v->direct_statement_url }}" target="_blank">
                                                         <i class="bi bi-box-arrow-up-right text-info me-2 fs-6"></i>
                                                         <span>View Statement</span>
                                                     </a>
